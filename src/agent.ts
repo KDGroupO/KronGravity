@@ -23,7 +23,9 @@ export async function processAgentMessage(userId: number, text: string): Promise
       ...history.map(msg => {
         const meta = msg.meta ? JSON.parse(msg.meta) : {};
         if (msg.role === 'assistant' && meta.tool_calls) {
-          return { role: 'assistant', content: msg.content, tool_calls: meta.tool_calls };
+          // OpenRouter/Groq expect an array of tool_calls with parsed values
+          const tools = typeof meta.tool_calls === 'string' ? JSON.parse(meta.tool_calls) : meta.tool_calls;
+          return { role: 'assistant', content: msg.content || null, tool_calls: tools };
         }
         if (msg.role === 'tool') {
           return { role: 'tool', content: msg.content || '', tool_call_id: meta.tool_call_id, name: meta.name };
