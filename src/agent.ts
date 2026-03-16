@@ -26,7 +26,7 @@ export async function processAgentMessage(userId: number, text: string): Promise
           return { role: 'assistant', content: msg.content, tool_calls: meta.tool_calls };
         }
         if (msg.role === 'tool') {
-          return { role: 'tool', content: msg.content || '', tool_call_id: meta.tool_call_id };
+          return { role: 'tool', content: msg.content || '', tool_call_id: meta.tool_call_id, name: meta.name };
         }
         return { role: msg.role as 'user' | 'assistant', content: msg.content || '' };
       })
@@ -45,7 +45,7 @@ export async function processAgentMessage(userId: number, text: string): Promise
         const result = await executeTool(toolCall.function.name, toolCall.function.arguments);
         
         // Save tool response
-        await memory.addMessage(userId, 'tool', result, { tool_call_id: toolCall.id });
+        await memory.addMessage(userId, 'tool', result, { tool_call_id: toolCall.id, name: toolCall.function.name });
       }
       // Loop continues...
     } else {
